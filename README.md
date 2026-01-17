@@ -86,7 +86,7 @@ fuel-price-monitor/
 ## 🔧 Installation & Setup
 
 ### 1. Prerequisites
-- Python 3.8+
+- Python 3.1.8+
 - PostgreSQL
 - Apache Airflow 2.0+
 - Docker (optional, for containerized deployment)
