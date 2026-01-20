@@ -45,7 +45,7 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Failed to connect to database: {e}")
             raise
-    
+    #get session method
     @contextmanager
     def get_session(self):
         """Provide a transactional scope around a series of operations."""
