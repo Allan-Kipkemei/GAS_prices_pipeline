@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 import logging
 import ssl
-
+# import all the sqlachemy components we need
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker

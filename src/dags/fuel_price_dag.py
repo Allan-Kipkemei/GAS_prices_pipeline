@@ -3,13 +3,22 @@ import os
 import sys
 
 from airflow import DAG
-from airflow.operators.email import EmailOperator
-from airflow.operators.python import PythonOperator
+try:
+    from airflow.providers.smtp.operators.smtp import EmailOperator
+except Exception:
+    from airflow.operators.email import EmailOperator
+
+try:
+    from airflow.providers.standard.operators.python import PythonOperator
+except Exception:
+    from airflow.operators.python import PythonOperator
 
 try:
     from airflow.providers.postgres.hooks.postgres import PostgresHook
 except Exception:
     PostgresHook = None
+
+from sqlalchemy import text
 
 # Add src to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -48,7 +57,6 @@ def validate_data_task(**context):
     """Task to validate ingested data."""
     ingestion_results = context['ti'].xcom_pull(key='ingestion_results', task_ids='ingest_data')
 
-    # Preferred path when provider is installed.
     if PostgresHook is not None:
         hook = PostgresHook(postgres_conn_id='fuel_price_db')
         null_prices = hook.get_records(
@@ -60,14 +68,15 @@ def validate_data_task(**context):
         )
         null_count = int(null_prices[0][0]) if null_prices else 0
     else:
-        # Fallback path for local/dev environments without airflow postgres provider.
         with db_manager.get_session() as session:
             result = session.execute(
-                """
-                SELECT COUNT(*) FROM fuel_prices
-                WHERE price IS NULL
-                AND created_at >= NOW() - INTERVAL '1 hour'
-                """
+                text(
+                    """
+                    SELECT COUNT(*) FROM fuel_prices
+                    WHERE price IS NULL
+                    AND created_at >= NOW() - INTERVAL '1 hour'
+                    """
+                )
             )
             null_count = int(result.scalar() or 0)
 
@@ -146,7 +155,7 @@ with DAG(
     'fuel_price_monitoring',
     default_args=default_args,
     description='Daily fuel price monitoring pipeline',
-    schedule_interval='0 6 * * *',
+    schedule='0 6 * * *',
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=['fuel', 'energy', 'monitoring'],
