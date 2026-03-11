@@ -23,6 +23,11 @@ class DatabaseManager:
             return
 
         try:
+            if not settings.DATABASE_URL:
+                raise ValueError(
+                    'Database configuration is missing. Set DATABASE_URL or DB_NAME, DB_USER, and DB_PASSWORD.'
+                )
+
             ssl_context = ssl.create_default_context()
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
