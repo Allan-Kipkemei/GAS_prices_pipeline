@@ -133,7 +133,7 @@ GRANT ALL PRIVILEGES ON DATABASE epra_prices TO epra_user;
 ```
 
 ### 5. Environment Variables Configuration
-Create a `.env` file in the project root with the following variables:
+Create a `.env` file in the project root with the following variables. The app now resolves `.env` relative to the repository root, so it works even when launched from a different working directory:
 
 ```env
 # Database Configuration
@@ -142,6 +142,9 @@ DB_PORT=5432
 DB_NAME=epra_prices
 DB_USER=epra_user
 DB_PASSWORD=your_password
+DB_SSL_MODE=require
+# Optional alternative: provide a full connection string instead of the values above
+# DATABASE_URL=postgresql://epra_user:your_password@localhost:5432/epra_prices
 
 # EIA API Configuration
 EIA_API_KEY=your_eia_api_key
@@ -151,6 +154,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your_email@gmail.com
 SMTP_PASSWORD=your_app_password
+TIMEZONE=Africa/Nairobi
 ```
 
 ### 6. Initialize Database
